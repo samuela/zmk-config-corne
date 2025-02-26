@@ -1,56 +1,182 @@
-/*
- * Copyright (c) 2020 The ZMK Contributors
- *
- * SPDX-License-Identifier: MIT
- */
+// These must precede the pointing.h import according to https://zmk.dev/docs/keymaps/behaviors/mouse-emulation
+#define ZMK_MOUSE_DEFAULT_MOVE_VAL 5000
+#define ZMK_MOUSE_DEFAULT_SCRL_VAL 100
 
 #include <behaviors.dtsi>
-#include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/outputs.h>
+#include <dt-bindings/zmk/pointing.h>
 
-/ {
-        keymap {
-                compatible = "zmk,keymap";
+// This must be after zmk core imports
+#include "zmk-helpers/helper.h"
+#include "zmk-helpers/key-labels/42.h"
 
-                default_layer {
-// -----------------------------------------------------------------------------------------
-// |  TAB |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U   |  I  |  O  |  P  | BSPC |
-// | CTRL |  A  |  S  |  D  |  F  |  G  |   |  H  |  J   |  K  |  L  |  ;  |  '   |
-// | SHFT |  Z  |  X  |  C  |  V  |  B  |   |  N  |  M   |  ,  |  .  |  /  | ESC  |
-//                    | GUI | LWR | SPC |   | ENT | RSE  | ALT |
-                        bindings = <
-   &kp TAB   &kp Q &kp W &kp E &kp R &kp T   &kp Y &kp U  &kp I     &kp O   &kp P    &kp BSPC
-   &kp LCTRL &kp A &kp S &kp D &kp F &kp G   &kp H &kp J  &kp K     &kp L   &kp SEMI &kp SQT
-   &kp LSHFT &kp Z &kp X &kp C &kp V &kp B   &kp N &kp M  &kp COMMA &kp DOT &kp FSLH &kp ESC
-                  &kp LGUI &mo 1 &kp SPACE   &kp RET &mo 2 &kp RALT
-                        >;
-                };
-                lower_layer {
-// -----------------------------------------------------------------------------------------
-// |  TAB |  1  |  2  |  3  |  4  |  5  |   |  6  |  7  |  8  |  9  |  0  | BSPC |
-// | BTCLR| BT1 | BT2 | BT3 | BT4 | BT5 |   | LFT | DWN |  UP | RGT |     |      |
-// | SHFT |     |     |     |     |     |   |     |     |     |     |     |      |
-//                    | GUI |     | SPC |   | ENT |     | ALT |
-                        bindings = <
-   &kp TAB    &kp N1       &kp N2       &kp N3       &kp N4       &kp N5         &kp N6   &kp N7   &kp N8 &kp N9    &kp N0 &kp BSPC
-   &bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4   &kp LEFT &kp DOWN &kp UP &kp RIGHT &trans &trans
-   &kp LSHFT  &trans       &trans       &trans       &trans       &trans         &trans   &trans   &trans &trans    &trans &trans
-                                    &kp LGUI     &trans       &kp SPACE      &kp RET  &trans   &kp RALT
-                        >;
-                };
+// Timeless home row mods. See https://github.com/urob/zmk-config?tab=readme-ov-file#timeless-homerow-mods
+#define KEYS_L LT5 LT4 LT3 LT2 LT1 LT0 LM5 LM4 LM3 LM2 LM1 LM0 LB5 LB4 LB3 LB2 LB1 LB0  // Left-hand keys.
+#define KEYS_R RT0 RT1 RT2 RT3 RT4 RT5 RM0 RM1 RM2 RM3 RM4 RM5 RB0 RB1 RB2 RB3 RB4 RB5  // Right-hand keys.
+#define THUMBS LH2 LH1 LH0 RH0 RH1 RH2                                                  // Thumb keys.
 
-                raise_layer {
-// -----------------------------------------------------------------------------------------
-// |  TAB |  !  |  @  |  #  |  $  |  %  |   |  ^  |  &  |  *  |  (  |  )  | BSPC |
-// | CTRL |     |     |     |     |     |   |  -  |  =  |  [  |  ]  |  \  |  `   |
-// | SHFT |     |     |     |     |     |   |  _  |  +  |  {  |  }  | "|" |  ~   |
-//                    | GUI |     | SPC |   | ENT |     | ALT |
-                        bindings = <
-   &kp  TAB  &kp EXCL &kp AT &kp HASH &kp DLLR &kp PRCNT   &kp CARET &kp AMPS  &kp ASTRK &kp LPAR &kp RPAR &kp BSPC
-   &kp LCTRL &trans   &trans &trans   &trans   &trans      &kp MINUS &kp EQUAL &kp LBKT  &kp RBKT &kp BSLH &kp GRAVE
-   &kp LSHFT &trans   &trans &trans   &trans   &trans      &kp UNDER &kp PLUS  &kp LBRC  &kp RBRC &kp PIPE &kp TILDE
-                             &kp LGUI &trans   &kp SPACE   &kp RET   &trans    &kp RALT
-                        >;
-                };
-        };
+/* Left-hand HRMs. */
+ZMK_HOLD_TAP(hml,
+    flavor = "balanced";
+    tapping-term-ms = <280>;
+    quick-tap-ms = <175>;
+    require-prior-idle-ms = <150>;
+    bindings = <&kp>, <&kp>;
+    hold-trigger-key-positions = <KEYS_R THUMBS>;
+    hold-trigger-on-release;
+)
+
+/* Right-hand HRMs. */
+ZMK_HOLD_TAP(hmr,
+    flavor = "balanced";
+    tapping-term-ms = <280>;
+    quick-tap-ms = <175>;
+    require-prior-idle-ms = <150>;
+    bindings = <&kp>, <&kp>;
+    hold-trigger-key-positions = <KEYS_L THUMBS>;
+    hold-trigger-on-release;
+)
+
+// pinky, ring, middle, index finger home row modifiers
+#define HRM_P LCTRL
+#define HRM_R LALT
+#define HRM_M LGUI
+#define HRM_I LSHIFT
+
+#define DEFAULT 0
+#define MEDIA 1
+#define NAV 2
+#define MOUSE 3
+#define SYM 4
+#define NUM 5
+#define FUN 6
+
+#define ___ &none
+
+&mmv {
+  acceleration-exponent = <1>;
+  time-to-max-speed-ms = <1500>;
+  delay-ms = <0>;
 };
+&msc {
+  acceleration-exponent = <1>;
+  time-to-max-speed-ms = <5000>;
+  delay-ms = <0>;
+};
+
+ZMK_LAYER(default_layer,
+    // ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮   ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
+         ___           &kp Q         &kp W         &kp F         &kp P         &kp B             &kp J         &kp L         &kp U         &kp Y         &kp SINGLE_QUOTE ___
+    // ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+         ___           &hml HRM_P A  &hml HRM_R R  &hml HRM_M S  &hml HRM_I T  &kp G             &kp M         &hmr HRM_I N  &hmr HRM_M E  &hmr HRM_R I  &hmr HRM_P O  ___
+    // ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+         ___           &kp Z         &kp X         &kp C         &kp D         &kp V             &kp K         &kp H         &kp COMMA     &kp DOT       &kp SLASH     ___
+    // ╰─────────────────────────────────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────────────────────────────────╯
+                                                   &lt MEDIA ESC &lt NAV SPACE &lt MOUSE TAB     &lt SYM ENTER &lt NUM BACKSPACE &kp DELETE
+    //                                           ╰─────────────┴─────────────┴─────────────╯   ╰─────────────┴─────────────┴─────────────╯
+)
+
+#define U_MACRO(name,...) \
+/ { \
+  macros { \
+    name: name { \
+      compatible = "zmk,behavior-macro"; \
+      #binding-cells = <0>; \
+      __VA_ARGS__ \
+    }; \
+  }; \
+};
+#define MIRYOKU_SHIFT_FUNCTION(NAME, BINDING, SHIFT_BINDING) \
+/ { \
+  behaviors { \
+    NAME: NAME { \
+      compatible = "zmk,behavior-mod-morph"; \
+      #binding-cells = <0>; \
+      bindings = <BINDING>, <SHIFT_BINDING>; \
+      mods = <(MOD_LSFT|MOD_RSFT)>; \
+    }; \
+  }; \
+};
+#define MIRYOKU_SHIFT_MACRO(NAME, BINDING, SHIFT_BINDING) \
+U_MACRO(u_macro_ ## NAME, wait-ms = <0>; bindings = <SHIFT_BINDING>;) \
+MIRYOKU_SHIFT_FUNCTION(NAME, BINDING, &u_macro_ ## NAME)
+
+MIRYOKU_SHIFT_MACRO(u_bt_sel_0, &bt BT_SEL 0, &bt BT_SEL 0 &bt BT_CLR)
+MIRYOKU_SHIFT_MACRO(u_bt_sel_1, &bt BT_SEL 1, &bt BT_SEL 1 &bt BT_CLR)
+MIRYOKU_SHIFT_MACRO(u_bt_sel_2, &bt BT_SEL 2, &bt BT_SEL 2 &bt BT_CLR)
+MIRYOKU_SHIFT_MACRO(u_bt_sel_3, &bt BT_SEL 3, &bt BT_SEL 3 &bt BT_CLR)
+MIRYOKU_SHIFT_MACRO(u_bt_sel_4, &bt BT_SEL 4, &bt BT_SEL 4 &bt BT_CLR)
+
+MIRYOKU_SHIFT_FUNCTION(u_out_tog, &out OUT_TOG, &out OUT_USB)
+
+MIRYOKU_SHIFT_FUNCTION(u_caps_word, &caps_word, &kp CAPS)
+
+ZMK_LAYER(media_layer,
+    // ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮   ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
+         ___           ___           ___           ___           ___           ___               &u_out_tog    &u_bt_sel_0   &u_bt_sel_1   &u_bt_sel_2   &u_bt_sel_3   ___
+    // ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+         ___           &kp HRM_P     &kp HRM_R     &kp HRM_M     &kp HRM_I     ___               ___           &kp C_PREV    &kp C_VOL_DN  &kp C_VOL_UP  &kp C_NEXT    ___
+    // ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+         ___           ___           ___           ___           ___           ___               ___           ___           ___           ___           ___           ___
+    // ╰─────────────────────────────────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────────────────────────────────╯
+                                                   ___           ___           ___               &kp C_STOP    &kp C_PP      &kp C_MUTE
+    //                                           ╰─────────────┴─────────────┴─────────────╯   ╰─────────────┴─────────────┴─────────────╯
+)
+
+#define undo  &kp LG(Z)
+#define cut   &kp LG(X)
+#define copy  &kp LG(C)
+#define paste &kp LG(V)
+#define redo  &kp LG(LS(Z))
+
+ZMK_LAYER(nav_layer,
+    // ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮   ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
+         ___           undo          cut           copy          paste         redo              redo          paste         copy          cut           undo          ___
+    // ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+         ___           &kp HRM_P     &kp HRM_R     &kp HRM_M     &kp HRM_I     ___               &u_caps_word  &kp LEFT      &kp DOWN      &kp UP        &kp RIGHT     ___
+    // ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+         ___           &kp LG(LS(LBKT)) &kp LG(MINUS) &kp LG(PLUS) &kp LG(LS(RBKT)) ___          ___           &kp HOME      &kp PG_DN     &kp PG_UP     &kp END       ___
+    // ╰─────────────────────────────────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────────────────────────────────╯
+                                                   ___           ___           ___               &trans        &trans        &trans
+    //                                           ╰─────────────┴─────────────┴─────────────╯   ╰─────────────┴─────────────┴─────────────╯
+)
+
+ZMK_LAYER(mouse_layer,
+    // ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮   ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
+         ___           undo          cut           copy          paste         redo              redo          paste         copy          cut           undo          ___
+    // ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+         ___           &kp HRM_P     &kp HRM_R     &kp HRM_M     &kp HRM_I     ___               ___           &mmv MOVE_LEFT &mmv MOVE_DOWN &mmv MOVE_UP &mmv MOVE_RIGHT ___
+    // ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+         ___           ___           ___           ___           ___           ___               ___           &msc SCRL_LEFT &msc SCRL_DOWN &msc SCRL_UP &msc SCRL_RIGHT ___
+    // ╰─────────────────────────────────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────────────────────────────────╯
+                                                   ___           ___           ___               &mkp MB1      &mkp MB2      &mkp MB3
+    //                                           ╰─────────────┴─────────────┴─────────────╯   ╰─────────────┴─────────────┴─────────────╯
+)
+
+MIRYOKU_SHIFT_MACRO(under_minus, &kp UNDERSCORE, &kp MINUS)
+
+ZMK_LAYER(sym_layer,
+    // ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮   ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
+         ___           ___           ___           ___           ___           ___               ___           ___           ___           ___           ___           ___
+    // ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+         ___           &kp GRAVE     &kp EQUAL     &under_minus  &kp SEMICOLON &kp SLASH         ___           &kp HRM_I     &kp HRM_M     &kp HRM_R     &kp HRM_P     ___
+    // ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+         ___           &kp LPAR      &kp LBKT      &kp RBKT      &kp RPAR      &kp BACKSLASH     ___           ___           ___           ___           ___           ___
+    // ╰─────────────────────────────────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────────────────────────────────╯
+                                                   &kp PERIOD    &kp N0        &kp MINUS         ___           ___           ___
+    //                                           ╰─────────────┴─────────────┴─────────────╯   ╰─────────────┴─────────────┴─────────────╯
+)
+
+ZMK_LAYER(num_layer,
+    // ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮   ╭─────────────┬─────────────┬─────────────┬─────────────┬─────────────┬─────────────╮
+         ___           ___           &kp N7        &kp N8        &kp N9        &kp ASTERISK      ___           ___           ___           ___           ___           ___
+    // ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+         ___           ___           &kp N4        &kp N5        &kp N6        &kp SLASH         ___           &kp HRM_I     &kp HRM_M     &kp HRM_R     &kp HRM_P     ___
+    // ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────┼─────────────┼─────────────┤
+         ___           ___           &kp N1        &kp N2        &kp N3        &kp PLUS          ___           ___           ___           ___           ___           ___
+    // ╰─────────────────────────────────────────┼─────────────┼─────────────┼─────────────┤   ├─────────────┼─────────────┼─────────────┼─────────────────────────────────────────╯
+                                                   &kp PERIOD    &kp N0        &kp MINUS         ___           ___           ___
+    //                                           ╰─────────────┴─────────────┴─────────────╯   ╰─────────────┴─────────────┴─────────────╯
+)
