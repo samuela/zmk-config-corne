@@ -55,6 +55,10 @@ ZMK_HOLD_TAP(hmr,
 
 #define ___ &none
 
+&lt {
+  // Tap+hold on thumb keys to get repeated key press behavior. Helpful for backspace especially.
+  quick-tap-ms = <200>;
+};
 &mmv {
   acceleration-exponent = <1>;
   time-to-max-speed-ms = <1500>;
